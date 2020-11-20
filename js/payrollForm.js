@@ -44,27 +44,6 @@ const dateError = document.querySelector('.date-error');
   }
 }));
 
-function save() {
-  try {
-    var name = document.querySelector('#name').value;
-    var salary = document.querySelector('#salary').value;
-    var gender = document.querySelector('input[name=gender]:checked').value;
-    var year = document.querySelector('#year').value;
-    var month = document.querySelector('#month').value;
-    var day = document.querySelector('#day').value;
-    var startDate = new Date(year, month, day);
-    var department = [];
-    var deptCheckboxes = document.querySelectorAll('input[name=department]:checked');
-    for (var i = 0; i < deptCheckboxes.length; i++) {
-      department.push(deptCheckboxes[i].value);
-    }
-    var employee = new EmployeePayrollData(name, salary, gender, startDate, department);
-    alert(employee);
-  } catch (error) {
-    alert(error);
-  }
-}
-
 const isLeapYear = (year) => {
   let result = false;
   if (year % 4 == 0) {
@@ -77,4 +56,45 @@ const isLeapYear = (year) => {
     }
   }
   return result;
-} 
+}
+
+const save = () => {
+  try {
+    let employee = createEmployeePayroll();
+    alert(employee);
+  } catch (e) {
+    alert(e);
+  }
+}
+
+const createEmployeePayroll = () => {
+  let employeePayrollData = new EmployeePayrollData();
+  try {
+    employeePayrollData.name = getInputValueById('#name');
+    employeePayrollData.profilePic = getSelectedValues('[name=profile]').pop();
+    employeePayrollData.gender = getSelectedValues('[name=gender]').pop();
+    employeePayrollData.department = getSelectedValues('[name=department]');
+    employeePayrollData.salary = getInputValueById('#salary');
+    employeePayrollData.note = getInputValueById('#notes');
+    employeePayrollData.startDate = new Date(getInputValueById('#year'), getInputValueById('#month'),
+      getInputValueById('#day'));
+    return employeePayrollData;
+  } catch (error) {
+    throw error;
+  }
+}
+
+const getInputValueById = (id) => {
+  let value = document.querySelector(id).value;
+  return value;
+}
+
+const getSelectedValues = (propertyValue) => {
+  let allItems = document.querySelectorAll(propertyValue);
+  let selItems = [];
+  allItems.forEach(item => {
+    if (item.checked)
+      selItems.push(item.value);
+  });
+  return selItems;
+}
