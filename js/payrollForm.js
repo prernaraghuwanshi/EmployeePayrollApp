@@ -61,7 +61,7 @@ const isLeapYear = (year) => {
 const save = () => {
   try {
     let employee = createEmployeePayroll();
-    alert(employee);
+    createAndUpdateStorage(employee);
   } catch (e) {
     alert(e);
   }
@@ -82,6 +82,17 @@ const createEmployeePayroll = () => {
   } catch (error) {
     throw error;
   }
+}
+
+function createAndUpdateStorage(employeePayrollData) {
+  let employeePayrollList = JSON.parse(localStorage.getItem("EmployeePayrollList"));
+  if (employeePayrollList == undefined) {
+    employeePayrollList = [employeePayrollData];
+  } else {
+    employeePayrollList.push(employeePayrollData);
+  }
+  alert(employeePayrollList.toString());
+  localStorage.setItem("EmployeePayrollList", JSON.stringify(employeePayrollList));
 }
 
 const getInputValueById = (id) => {
