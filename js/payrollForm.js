@@ -1,3 +1,6 @@
+let isUpdate = false;
+let employeePayrollObj = {};
+
 window.addEventListener('DOMContentLoaded', (event) => {
   const name = document.querySelector('#name');
   const textError = document.querySelector('.text-error');
@@ -13,12 +16,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
       textError.textContent = e;
     }
   });
-});
 
-const salary = document.querySelector('#salary');
-const output = document.querySelector('.salary-output');
-salary.addEventListener('input', function () {
-  output.textContent = salary.value;
+
+  const salary = document.querySelector('#salary');
+  const output = document.querySelector('.salary-output');
+  salary.addEventListener('input', function () {
+    output.textContent = salary.value;
+  });
+
+  checkForUpdate();
 });
 
 const day = document.querySelector('#day');
@@ -44,20 +50,6 @@ const dateError = document.querySelector('.date-error');
   }
 }));
 
-const isLeapYear = (year) => {
-  let result = false;
-  if (year % 4 == 0) {
-    if (year % 100 == 0) {
-      if (year % 400 == 0) {
-        result = true;
-      }
-    } else {
-      result = true;
-    }
-  }
-  return result;
-}
-
 const save = () => {
   try {
     let employee = createEmployeePayroll();
@@ -65,6 +57,38 @@ const save = () => {
   } catch (e) {
     alert(e);
   }
+}
+
+const checkForUpdate = () => {
+  const employeePayrollJson = localStorage.getItem('editEmp');
+  isUpdate = employeePayrollJson ? true : false;
+  if (!isUpdate)
+    return;
+  employeePayrollObj = JSON.parse(employeePayrollJson);
+  setForm();
+}
+
+const setForm = () => {
+  setValue('#name', employeePayrollObj._name);
+  setSelectedValues('[name=profile]', employeePayrollObj._profilePic);
+  setSelectedValues('[name=gender]', employeePayrollObj._gender);
+  setSelectedValues('[name=department]', employeePayrollObj._department);
+  setValue('#salary', employeePayrollObj._salary);
+  setTextValue('.salary-output', employeePayrollObj._salary);
+  setValue('#notes', employeePayrollObj._note);
+  let date = stringifyDate(employeePayrollObj._startDate).split(" ");
+  let month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(date[1]);
+  console.log(date[0]);
+  if (date[0] < 10) {
+    let num = date[0];
+    num = num.toString();
+    num = "0" + num;
+    date[0] = num;
+  }
+  //console.log(date[0]);
+  setValue('#day', date[0]);
+  setValue('#month', month);
+  setValue('#year', date[2]);
 }
 
 const resetForm = () => {
@@ -75,9 +99,9 @@ const resetForm = () => {
   unsetSelectedValues('[name=department]');
   setValue('#salary', '');
   setValue('#notes', '');
-  setValue('#day', '01');
-  setValue('#month', '0');
-  setValue('#year', '2020');
+  setSelectedIndex('#day', '0');
+  setSelectedIndex('#month', '0');
+  setSelectedIndex('#year', '0');
   setTextValue('.date-error', '');
 }
 
@@ -92,6 +116,10 @@ const createEmployeePayroll = () => {
     employeePayrollData.note = getInputValueById('#notes');
     employeePayrollData.startDate = new Date(getInputValueById('#year'), getInputValueById('#month'),
       getInputValueById('#day'));
+    let employeePayrollList = JSON.parse(localStorage.getItem("EmployeePayrollList"));
+    if (employeePayrollList == undefined)
+      employeePayrollData.id = 1;
+    else employeePayrollData.id = employeePayrollList.length + 1;
     return employeePayrollData;
   } catch (error) {
     throw error;
@@ -105,12 +133,13 @@ function createAndUpdateStorage(employeePayrollData) {
   } else {
     employeePayrollList.push(employeePayrollData);
   }
-  alert(employeePayrollList.toString());
+  alert(employeePayrollData.toString());
   localStorage.setItem("EmployeePayrollList", JSON.stringify(employeePayrollList));
 }
 
 const getInputValueById = (id) => {
   let value = document.querySelector(id).value;
+  //console.log("Date: " + value);
   return value;
 }
 
@@ -131,6 +160,19 @@ const unsetSelectedValues = (propertyValue) => {
   });
 }
 
+const setSelectedValues = (propertyValue, value) => {
+  let allItems = document.querySelectorAll(propertyValue);
+  allItems.forEach(item => {
+    if (Array.isArray(value)) {
+      if (value.includes(item.value)) {
+        item.checked = true;
+      }
+    }
+    else if (item.value == value)
+      item.checked = true;
+  });
+}
+
 const setTextValue = (id, value) => {
   const element = document.querySelector(id);
   element.textContent = value;
@@ -139,4 +181,23 @@ const setTextValue = (id, value) => {
 const setValue = (id, value) => {
   const element = document.querySelector(id);
   element.value = value;
+}
+
+const setSelectedIndex = (id, index) => {
+  const element = document.querySelector(id);
+  element.selectedIndex = index;
+}
+
+const isLeapYear = (year) => {
+  let result = false;
+  if (year % 4 == 0) {
+    if (year % 100 == 0) {
+      if (year % 400 == 0) {
+        result = true;
+      }
+    } else {
+      result = true;
+    }
+  }
+  return result;
 }

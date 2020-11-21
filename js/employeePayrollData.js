@@ -66,15 +66,15 @@ class EmployeePayrollData {
     set startDate(startDate) {
         if (startDate != undefined) {
             if (startDate <= new Date()) {
-                //const options = { year: "numeric", month: "long", day: "numeric" };
-                //const employeeDate = startDate.toLocaleDateString("en-US", options);
-                this._startDate = startDate;
+                const options = { year: "numeric", month: "short", day: "numeric" };
+                const employeeDate = startDate.toLocaleDateString("en-GB", options);
+                this._startDate = employeeDate;
             }
             else throw "Select valid date!";
         }
     }
 
     toString() {
-        return " Name: " + this.name + " Salary: " + this.salary + " Gender: " + this.gender + " Start Date: " + this.startDate + "Department: " + this.department + "Profile Pic: " + this.profilePic + "Note: " + this.note;
+        return "ID: " + this.id + " Name: " + this.name + " Salary: " + this.salary + " Gender: " + this.gender + " Start Date: " + this.startDate + "Department: " + this.department + "Profile Pic: " + this.profilePic + "Note: " + this.note;
     }
 }
